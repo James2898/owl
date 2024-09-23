@@ -68,6 +68,7 @@ func main() {
 	app.Get("/", helloWorld)
 	app.Get("/students/", getStudents)
 	app.Get("/students/:id", getStudent)
+	app.Patch("/students/:id", updateStudent)
 
 	// Start the server on port 3000
 	log.Fatal(app.Listen(":3000"))
@@ -111,6 +112,26 @@ func getStudent(c *fiber.Ctx) error {
 	if row != nil {
 		if err := row.Decode(&student); err != nil {
 			return err
+		}
+	}
+
+	return c.Status(200).JSON(student)
+}
+
+func updateStudent(c *fiber.Ctx) error {
+	id := c.Params("id")
+	objectID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		return c.Status(400).JSON(fiber.Map{"error": "Invalid todo ID"})
+	}
+
+	filter := bson.M{"_id": objectID}
+	row := studentsCol.FindOne(context.Background(), filter)
+
+	var student Student
+	if row != nil {
+		if err := row.Decode(&student); err != nil {
+
 		}
 	}
 
