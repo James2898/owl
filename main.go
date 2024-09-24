@@ -163,7 +163,7 @@ func updateStudent(c *fiber.Ctx) error {
 	}
 
 	filter := bson.M{"_id": objectID}
-	update := bson.M{"$set": bson.M{"lastName": in.LastName, "firstName": in.FirstName}}
+	update := bson.M{"$set": in}
 	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
 	row := studentsCol.FindOneAndUpdate(context.Background(), filter, update, opts)
 
