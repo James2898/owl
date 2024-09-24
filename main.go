@@ -5,7 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"owl/domain/model/req"
+	"owl/domain/model/res"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/joho/godotenv"
@@ -15,21 +18,40 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type Student struct {
-	ID         primitive.ObjectID `json:"_id,omitempty" bson:"_id,omitempty"`
-	LastName   string             `json:"lastName"`
-	FirstName  string             `json:"firstName"`
-	MiddleName string             `json:"middleName"`
-	Suffix     string             `json:"suffix"`
-	Contact    string             `json:"contact"`
-	ImageUri   string             `json:"imageUri"`
-	SectionID  int                `json:"sectionID"`
-	Strand     string             `json:"strand"`
-	Grade      int                `json:"grade"`
-	Comment    string             `json:"comment"`
+type XValidator struct {
+	validator *validator.Validate
+}
+
+type ErrorResponse struct {
+	Error       bool
+	FailedField string
+	Tag         string
+	Value       interface{}
 }
 
 var studentsCol *mongo.Collection
+var validate = validator.New()
+
+func (v XValidator) Validate(data interface{}) []ErrorResponse {
+	validationErrors := []ErrorResponse{}
+
+	errs := validate.Struct(data)
+	if errs != nil {
+		for _, err := range errs.(validator.ValidationErrors) {
+			// In this case data object is actually holding the User struct
+			var elem ErrorResponse
+
+			elem.FailedField = err.Field() // Export struct field name
+			elem.Tag = err.Tag()           // Export struct tag
+			elem.Value = err.Value()       // Export field value
+			elem.Error = true
+
+			validationErrors = append(validationErrors, elem)
+		}
+	}
+
+	return validationErrors
+}
 
 func main() {
 	// LOAD ENV
@@ -57,6 +79,7 @@ func main() {
 	fmt.Println("Connected to MONGODB ATLAS")
 	studentsCol = client.Database("owl_db").Collection("students")
 
+	// FIBER
 	app := fiber.New()
 
 	app.Use(cors.New(cors.Config{
@@ -79,7 +102,7 @@ func helloWorld(c *fiber.Ctx) error {
 }
 
 func getStudents(c *fiber.Ctx) error {
-	var students []Student
+	var students []res.Student
 
 	cursor, err := studentsCol.Find(context.Background(), bson.M{})
 	if err != nil {
@@ -88,14 +111,16 @@ func getStudents(c *fiber.Ctx) error {
 	defer cursor.Close(context.Background())
 
 	for cursor.Next(context.Background()) {
-		var student Student
+		var student res.Student
 		if err := cursor.Decode(&student); err != nil {
 			return err
 		}
 		students = append(students, student)
 	}
 
-	return c.JSON(students)
+	retList := res.StudentKeys{Object: students}
+
+	return c.JSON(retList)
 }
 
 func getStudent(c *fiber.Ctx) error {
@@ -108,7 +133,7 @@ func getStudent(c *fiber.Ctx) error {
 	filter := bson.M{"_id": objectID}
 	row := studentsCol.FindOne(context.Background(), filter)
 
-	var student Student
+	var student res.Student
 	if row != nil {
 		if err := row.Decode(&student); err != nil {
 			return err
@@ -119,20 +144,32 @@ func getStudent(c *fiber.Ctx) error {
 }
 
 func updateStudent(c *fiber.Ctx) error {
+	valid := &XValidator{validator: validate}
+
+	in := new(req.StudentOfUpdate)
+	if err := c.BodyParser(in); err != nil {
+		return c.Status(400).JSON(err)
+	}
+
+	if errs := valid.Validate(in); len(errs) > 0 {
+		return c.Status(400).JSON(errs)
+	}
+
 	id := c.Params("id")
 	objectID, err := primitive.ObjectIDFromHex(id)
+
 	if err != nil {
 		return c.Status(400).JSON(fiber.Map{"error": "Invalid todo ID"})
 	}
 
 	filter := bson.M{"_id": objectID}
-	row := studentsCol.FindOne(context.Background(), filter)
+	update := bson.M{"$set": bson.M{"lastName": in.LastName, "firstName": in.FirstName}}
+	opts := options.FindOneAndUpdate().SetReturnDocument(options.After)
+	row := studentsCol.FindOneAndUpdate(context.Background(), filter, update, opts)
 
-	var student Student
-	if row != nil {
-		if err := row.Decode(&student); err != nil {
-
-		}
+	var student res.Student
+	if err := row.Decode(&student); err != nil {
+		return err
 	}
 
 	return c.Status(200).JSON(student)
