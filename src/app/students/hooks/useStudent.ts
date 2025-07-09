@@ -8,7 +8,7 @@ import { Student } from "@/app/interface/Student";
 export const useStudent = () => {
   const [students, setStudents] = React.useState<Student[]>([]);
 
-  const fetch = async () => {
+  const refetch = async () => {
     try {
       const data = await fetchStudents();
       setStudents(data);
@@ -18,8 +18,13 @@ export const useStudent = () => {
     }
   };
 
+  React.useEffect(() => {
+    refetch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return {
     students,
-    fetch,
+    refetch,
   };
 };
