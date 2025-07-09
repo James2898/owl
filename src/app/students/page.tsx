@@ -76,7 +76,6 @@ const StudentsPage = () => {
     debugTable: true,
     debugHeaders: true,
     debugColumns: false,
-    pageCount: 5,
   });
 
   return (
@@ -90,7 +89,7 @@ const StudentsPage = () => {
             <table className="min-w-full table divide-y divide-black text-gray-800">
               <thead>
                 {table.getHeaderGroups().map((headerGroup) => (
-                  <tr key={headerGroup.id} className="bg-gray-800 text-white">
+                  <tr key={headerGroup.id} className="bg-blue-800 text-white">
                     {headerGroup.headers.map((header) => {
                       return (
                         <th key={header.id} className={Style.th}>
@@ -119,7 +118,7 @@ const StudentsPage = () => {
               <tbody>
                 {table.getRowModel().rows.map((row) => {
                   return (
-                    <tr key={row.id}>
+                    <tr key={row.id} className={Style.tr}>
                       {row.getVisibleCells().map((cell) => {
                         return (
                           <td key={cell.id} className={Style.td}>
@@ -135,9 +134,31 @@ const StudentsPage = () => {
                 })}
               </tbody>
             </table>
-            <div>
+            {/* Pagination */}
+            <div className="mt-4 flex items-center inline-block w-full justify-center">
               <div>
-                <nav className="isolate inline-flex justify-end w-full">
+                <div className="w-full flex items-center justify-center mb-2">
+                  <span className="text-sm text-gray-700">
+                    Page{" "}
+                    <strong>
+                      {table.getState().pagination.pageIndex + 1} of{" "}
+                      {table.getPageCount()}
+                    </strong>
+                  </span>
+                </div>
+                <nav className="isolate inline-flex justify-center w-full">
+                  <button
+                    type="button"
+                    className={
+                      table.getCanPreviousPage()
+                        ? Style.btnDefault
+                        : Style.btnDisabled
+                    }
+                    onClick={() => table.setPageIndex(0)}
+                    disabled={!table.getCanPreviousPage()}
+                  >
+                    First
+                  </button>
                   <button
                     type="button"
                     className={
@@ -162,6 +183,18 @@ const StudentsPage = () => {
                   >
                     Next
                   </button>
+                  <button
+                    type="button"
+                    className={
+                      table.getCanNextPage()
+                        ? Style.btnDefault
+                        : Style.btnDisabled
+                    }
+                    onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+                    disabled={!table.getCanNextPage()}
+                  >
+                    Last
+                  </button>
                 </nav>
               </div>
             </div>
@@ -174,6 +207,7 @@ const StudentsPage = () => {
 
 const Style = {
   th: "px-3 py-2 text-left text-xs font-medium text-white uppercase tracking-wider",
+  tr: "bg-white border-b hover:bg-blue-200",
   td: "px-3 py-2 text-sm text-gray-800",
   btnDefault:
     "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800",
