@@ -2,8 +2,20 @@
 
 import * as React from "react";
 import { useLogin } from "@/app/login/useLogin";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
+  const router = useRouter();
+  const { status } = useSession();
+
+  React.useEffect(() => {
+    if (status === "authenticated") {
+      // Redirect to the dashboard if the user is already authenticated
+      router.push("/dashboard");
+    }
+  }, [router, status]);
+
   const { password, setPassword, error, handleSubmit } = useLogin();
 
   return (
@@ -24,7 +36,7 @@ const LoginPage = () => {
             <input
               type="password"
               id="password"
-              className="mt-1 block w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+              className="mt-1 block w-full text-gray-700 px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
