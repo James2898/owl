@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import {
-  Column,
+  // Column,
   ColumnDef,
   ColumnFiltersState,
-  RowData,
+  // RowData,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -37,15 +37,33 @@ const StudentsPage = () => {
         accessorKey: "no",
         header: studentColumns.no.name,
         cell: (student) => student.getValue(),
+        // meta: {
+        //   filterVariant: "range",
+        // },
+      },
+      {
+        accessorFn: (student) => `${student.grade}`,
+        header: studentColumns.grade.name,
+        cell: (student) => student.getValue(),
         meta: {
-          filterVariant: "range",
+          filterVariant: "select",
         },
       },
       {
-        accessorFn: (student) =>
-          `${student.grade} - ${student.strand} - ${student.section}`,
+        accessorFn: (student) => `${student.strand}`,
+        header: studentColumns.strand.name,
+        cell: (student) => student.getValue(),
+        meta: {
+          filterVariant: "select",
+        },
+      },
+      {
+        accessorFn: (student) => `${student.section}`,
         header: studentColumns.section.name,
         cell: (student) => student.getValue(),
+        meta: {
+          filterVariant: "select",
+        },
       },
       {
         accessorFn: (student) =>
@@ -53,6 +71,10 @@ const StudentsPage = () => {
             student.middleName ? student.middleName[0] + "." : ""
           }`,
         header: "Name",
+      },
+      {
+        accessorKey: "gender",
+        cell: (student) => student.getValue(),
       },
       {
         header: "Actions",
@@ -107,6 +129,11 @@ const StudentsPage = () => {
                                   header.getContext()
                                 )}
                               </div>
+                              {/* {header.column.getCanFilter() && (
+                                <div className="mt-2">
+                                  <Filter column={header.column} />
+                                </div>
+                              )} */}
                             </>
                           )}
                         </th>
@@ -121,7 +148,14 @@ const StudentsPage = () => {
                     <tr key={row.id} className={Style.tr}>
                       {row.getVisibleCells().map((cell) => {
                         return (
-                          <td key={cell.id} className={Style.td}>
+                          <td
+                            key={cell.id}
+                            className={`${Style.td} ${
+                              cell.row.original.gender === "Female"
+                                ? "bg-pink-100"
+                                : "bg-blue-100"
+                            }`}
+                          >
                             {flexRender(
                               cell.column.columnDef.cell,
                               cell.getContext()
@@ -205,10 +239,36 @@ const StudentsPage = () => {
   );
 };
 
+// const Filter = ({ column }: { column: Column<Student> }) => {
+//   const columnFilterValue = column.getFilterValue();
+//   const { filterVariant } = column.columnDef.meta || {};
+
+//   const uqGrade = React.useMemo(() => {
+//     const grades = column.table.getColumn("grade")?.getFacetedUniqueValues();
+//     return Array.from(grades?.keys() || []).sort();
+//   }, [column.table]);
+
+//   switch (filterVariant) {
+//     case "select":
+//       return <select></select>;
+//     case "range":
+//       return (
+//         <input
+//           type="number"
+//           value={(columnFilterValue as number) || ""}
+//           onChange={(e) => column.setFilterValue(e.target.value)}
+//           className="border border-gray-300 rounded p-1"
+//         />
+//       );
+//     default:
+//       return null;
+//   }
+// };
+
 const Style = {
   th: "px-3 py-2 text-left text-xs font-medium text-white uppercase tracking-wider",
-  tr: "bg-white border-b hover:bg-blue-200",
-  td: "px-3 py-2 text-sm text-gray-800",
+  tr: "bg-white border-b even:bg-blue-50 hover:bg-yellow-200",
+  td: "px-3 py-2 text-sm",
   btnDefault:
     "text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800",
   btnDisabled:
