@@ -8,6 +8,7 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "OWL - Teacher Farah's Gradebook",
   description: "Teacher Farah Tools - Gradebook, Attendance, and more",
+  viewport: "width=device-width, initial-scale=1",
 };
 
 export default function RootLayout({

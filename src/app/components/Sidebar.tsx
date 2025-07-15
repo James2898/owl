@@ -10,10 +10,11 @@ const Sidebar = () => {
 
   const navLinks = [
     { href: "/dashboard", label: "Dashboard" },
-    { href: "/attendance", label: "Attendance" },
+    // { href: "/attendance", label: "Attendance" },
     { href: "/students", label: "Students" },
-    { href: "/grades", label: "Grades" },
-    { href: "/settings", label: "Settings" },
+    { href: "/sections", label: "Sections" },
+    // { href: "/grades", label: "Grades" },
+    // { href: "/settings", label: "Settings" },
   ];
 
   return (
