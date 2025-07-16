@@ -2,34 +2,33 @@
 
 import * as React from "react";
 
-import { fetchStudents } from "@/app/students/api/action";
+import { fetchStudentsBySection } from "@/app/students/api/action";
 import { Student } from "@/app/interface/Student";
 
-export const useStudent = () => {
+export const useSection = (section: string) => {
   const [students, setStudents] = React.useState<Student[]>([]);
   const [isFetching, setIsFetching] = React.useState(false);
 
-  const refetch = React.useCallback(async () => {
+  const refetchSections = React.useCallback(async () => {
     setIsFetching(true);
     try {
-      const data = await fetchStudents();
+      const data = await fetchStudentsBySection(section);
       setStudents(data);
     } catch (error) {
-      console.error("Error fetching students:", error);
+      console.error("Error refetching sections:", error);
       return [];
     } finally {
       setIsFetching(false);
     }
-  }, []);
+  }, [section]);
 
   React.useEffect(() => {
-    refetch();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    refetchSections();
+  }, [refetchSections, section]);
 
   return {
     students,
     isFetching,
-    refetch,
+    refetchSections,
   };
 };

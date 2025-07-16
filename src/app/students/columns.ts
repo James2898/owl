@@ -21,4 +21,5 @@ export const studentColumns = {
   previousSchool: { no: 19, name: "Previous School" },
   previousSchoolNameAdviser: { no: 20, name: "Previous School Name/Adviser" },
   previousSchoolSection: { no: 21, name: "Previous School Section" },
+  imageUrl: { no: 22, name: "Image URL" }, // Assuming image URL is at index 22
 };

@@ -1,9 +1,31 @@
 "use server";
 
-import { sheets, GOOGLE_SHEETS_ID } from "@/lib/google-sheets";
+import {
+  sheets,
+  GOOGLE_SHEETS_ID,
+  getGoogleDriveDirectLink,
+} from "@/lib/google-sheets";
 
 import { Student } from "@/app/interface/Student";
 import { studentColumns } from "@/app/students/columns";
+import axios from "axios";
+
+interface GoogleSheetCell {
+  v?: string;
+  f?: string;
+}
+
+interface GoogleSheetRow {
+  c?: GoogleSheetCell[];
+}
+
+interface GoogleSheetTable {
+  rows: GoogleSheetRow[];
+}
+
+interface GoogleSheetData {
+  table: GoogleSheetTable;
+}
 
 export const fetchStudents = async () => {
   try {
@@ -55,5 +77,72 @@ export const fetchStudents = async () => {
   } catch (error) {
     console.error("Error fetching students from Google Sheet:", error);
     throw new Error("Failed to fetch student data.");
+  }
+};
+
+export const fetchStudentsBySection = async (section: string) => {
+  console.log("Fetching students by section:", section);
+  if (!section) {
+    console.warn("No section provided for fetching students.");
+    return [];
+  }
+
+  console.log(`Fetching students for section: ${section}`);
+  try {
+    const sectionCol = "B";
+
+    const query = encodeURIComponent(
+      `SELECT A, B, C, D, E, G, H, I, W WHERE ${sectionCol} = '${section}'`
+    );
+    const queryUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/gviz/tq?tqx=out:json&sheet=Students&tq=${query}`;
+
+    console.log("DEBUG: Query URL:", queryUrl);
+
+    const response = await axios.get(queryUrl);
+    const data = JSON.parse(
+      response.data.substring(
+        response.data.indexOf("{"),
+        response.data.lastIndexOf("}") + 1
+      )
+    );
+
+    if (
+      !data ||
+      !data.table ||
+      !data.table.rows ||
+      data.table.rows.length === 0
+    ) {
+      console.log(`No data found for section "${section}".`);
+      return [];
+    }
+
+    const students: Student[] = (data as GoogleSheetData).table.rows.map(
+      (row: GoogleSheetRow) => {
+        const c: GoogleSheetCell[] = row.c || [];
+        const imageURL = c[8]?.v || "";
+        const directURL = getGoogleDriveDirectLink(imageURL);
+        return {
+          no: c[0]?.v || "",
+          section: c[1]?.v || "",
+          grade: c[2]?.v || "",
+          strand: c[3]?.v || "",
+          gender: c[4]?.v || "",
+          lastName: c[5]?.v || "",
+          firstName: c[6]?.v || "",
+          middleName: c[7]?.v || "",
+          imageUrl: directURL || "", // Assuming image URL is at index 8
+        };
+      }
+    );
+
+    console.log(
+      `Fetched ${students.length} students for section "${section}".`
+    );
+    console.log("Students data:", students);
+
+    return students;
+  } catch (error) {
+    console.error("Error fetching students by section:", error);
+    throw new Error("Failed to fetch students by section.");
   }
 };

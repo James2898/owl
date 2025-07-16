@@ -21,4 +21,5 @@ export interface Student {
   previousSchool?: string;
   previousSchoolNameAdviser?: string;
   previousSchoolSection?: string;
+  imageUrl?: string; // Assuming image URL is optional
 }
