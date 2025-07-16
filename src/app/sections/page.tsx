@@ -121,7 +121,9 @@ const StudentsPage = () => {
           </select>
         </h1>
         {isFetching ? (
-          <Loading height={16} width={16} />
+          <div className="flex items-center justify-center space-x-2">
+            <Loading height={16} width={16} />
+          </div>
         ) : data.length == 0 ? (
           <p className="text-gray-600">No students found. Please Add Data</p>
         ) : (
