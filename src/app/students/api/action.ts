@@ -87,7 +87,6 @@ export const fetchStudentsBySection = async (section: string) => {
     return [];
   }
 
-  console.log(`Fetching students for section: ${section}`);
   try {
     const sectionCol = "B";
 
@@ -138,7 +137,6 @@ export const fetchStudentsBySection = async (section: string) => {
     console.log(
       `Fetched ${students.length} students for section "${section}".`
     );
-    console.log("Students data:", students);
 
     return students;
   } catch (error) {

@@ -21,7 +21,7 @@ import { useTableColumns } from "./hooks/useTableColumns";
 
 const StudentsPage = () => {
   const [section, setSection] = React.useState("Ruby");
-  const { students, isFetching } = useSection(section);
+  const { students, isFetching, handleStudentClicked } = useSection(section);
   const [data, setData] = React.useState<Student[]>(students);
 
   React.useEffect(() => {
@@ -118,7 +118,11 @@ const StudentsPage = () => {
                 <tbody>
                   {table.getRowModel().rows.map((row) => {
                     return (
-                      <tr key={row.id} className={Style.tr}>
+                      <tr
+                        key={row.id}
+                        onClick={() => handleStudentClicked(row.original)}
+                        className={Style.tr}
+                      >
                         {row.getVisibleCells().map((cell) => {
                           return (
                             <td

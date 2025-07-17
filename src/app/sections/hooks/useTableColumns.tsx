@@ -107,6 +107,7 @@ export const useTableColumns = () => {
         },
       },
       {
+        accessorKey: "lastName",
         accessorFn: (student) => student.lastName,
         header: studentColumns.lastName.name,
         cell: (student) => {
