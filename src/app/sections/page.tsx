@@ -57,16 +57,16 @@ const StudentsPage = () => {
             <Image
               src={imageUrl}
               alt="Student Image"
-              width={60}
-              height={60}
+              width={20}
+              height={20}
               className="w-20 h-20 rounded-full"
             />
           ) : (
             <Image
               src="/static/default-profile.svg"
               alt="Student Image"
-              width={60}
-              height={60}
+              width={20}
+              height={20}
               className="w-20 h-20 rounded-full"
             />
           );
@@ -81,6 +81,27 @@ const StudentsPage = () => {
       },
       {
         header: "Actions",
+        cell: (student) => {
+          const studentData = student.row.original;
+          return (
+            <div className="flex space-x-2">
+              <button
+                className={Style.btnView}
+                onClick={() =>
+                  alert(`View details for ${studentData.firstName}`)
+                }
+              >
+                View
+              </button>
+              <button
+                className={Style.btnDelete}
+                onClick={() => alert(`Delete ${studentData.firstName}`)}
+              >
+                Delete
+              </button>
+            </div>
+          );
+        },
       },
     ],
     []
@@ -104,7 +125,7 @@ const StudentsPage = () => {
   });
 
   return (
-    <div className="space-y-8">
+    <div className="">
       <div className="bg-white p-6 rounded-lg shadow-md">
         <h1 className="text-3xl font-bold text-gray-800 mb-6">
           Section:

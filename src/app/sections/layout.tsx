@@ -16,12 +16,9 @@ const SectionLayout = async ({ children }: Props) => {
   }
 
   return (
-    <div className="flex min-h-screen bg-gray-500">
+    <div className="flex flex-col sm:flex-row min-h-screen bg-gray-500">
       <Sidebar />
-
-      <div className="flex-1 flex flex-col">
-        <main className="flex-1 p-6">{children}</main>
-      </div>
+      <main className="flex-1 p-3">{children}</main>
     </div>
   );
 };
