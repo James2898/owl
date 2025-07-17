@@ -22,7 +22,8 @@ import { Modal } from "../components/Modal";
 
 const StudentsPage = () => {
   const [section, setSection] = React.useState("Ruby");
-  const { students, isFetching, refetchStudentGrades } = useSection(section);
+  const { students, studentGrades, refetchStudentGrades, isFetching } =
+    useSection(section);
   const [selectedStudent, setSelectedStudent] = React.useState<Student | null>(
     null
   );
@@ -32,7 +33,20 @@ const StudentsPage = () => {
   const toggleModal = (student: Student) => {
     setIsOpen(!isOpen);
     setSelectedStudent(student);
+    refetchStudentGrades(student);
   };
+
+  React.useEffect(() => {
+    if (
+      !studentGrades ||
+      studentGrades.length === 0 ||
+      !studentGrades.table ||
+      !studentGrades.table.rows
+    ) {
+      return;
+    }
+    console.log("Selected Student Grades:", studentGrades.table.rows[0].c);
+  }, [studentGrades]);
 
   const closeModal = () => {
     setIsOpen(false);
@@ -169,6 +183,7 @@ const StudentsPage = () => {
         isOpen={isOpen}
         handleClose={closeModal}
         student={selectedStudent}
+        grades={studentGrades}
       />
     </div>
   );
