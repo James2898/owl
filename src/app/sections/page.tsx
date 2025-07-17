@@ -1,12 +1,8 @@
 "use client";
 
 import * as React from "react";
-import Image from "next/image";
 
 import {
-  // Column,
-  ColumnDef,
-  // RowData,
   flexRender,
   getCoreRowModel,
   getFilteredRowModel,
@@ -16,11 +12,12 @@ import {
 } from "@tanstack/react-table";
 
 import { Student } from "@/app/interface/Student";
-import { studentColumns } from "@/app/students/columns";
 import { useSection } from "@/app/sections/hooks/useSection";
 import { Loading } from "@/app/components/Loading";
 import { Pagination } from "@/app/components/Pagination";
 import { Style } from "@/lib/Styles";
+import useWindowSize from "../hooks/useWindowSize";
+import { useTableColumns } from "./hooks/useTableColumns";
 
 const StudentsPage = () => {
   const [section, setSection] = React.useState("Ruby");
@@ -37,79 +34,13 @@ const StudentsPage = () => {
     setSection(section);
   };
 
-  const columns = React.useMemo<ColumnDef<Student>[]>(
-    () => [
-      {
-        accessorKey: "no",
-        header: studentColumns.no.name,
-        cell: (student) => student.getValue(),
-        // meta: {
-        //   filterVariant: "range",
-        // },
-      },
-      {
-        accessorKey: "imageUrl",
-        // accessorFn: (student) => `${student.imageUrl}`,
-        header: studentColumns.imageUrl.name,
-        cell: (student) => {
-          const imageUrl = student.getValue() as string | undefined;
-          return imageUrl ? (
-            <Image
-              src={imageUrl}
-              alt="Student Image"
-              width={20}
-              height={20}
-              className="w-20 h-20 rounded-full"
-            />
-          ) : (
-            <Image
-              src="/static/default-profile.svg"
-              alt="Student Image"
-              width={20}
-              height={20}
-              className="w-20 h-20 rounded-full"
-            />
-          );
-        },
-      },
-      {
-        accessorFn: (student) =>
-          `${student.lastName}, ${student.firstName} ${
-            student.middleName ? student.middleName[0] + "." : ""
-          }`,
-        header: "Name",
-      },
-      {
-        header: "Actions",
-        cell: (student) => {
-          const studentData = student.row.original;
-          return (
-            <div className="flex space-x-2">
-              <button
-                className={Style.btnView}
-                onClick={() =>
-                  alert(`View details for ${studentData.firstName}`)
-                }
-              >
-                View
-              </button>
-              <button
-                className={Style.btnDelete}
-                onClick={() => alert(`Delete ${studentData.firstName}`)}
-              >
-                Delete
-              </button>
-            </div>
-          );
-        },
-      },
-    ],
-    []
-  );
+  const windowSize = useWindowSize();
+  const { desktopCols, mobileCols } = useTableColumns();
 
   const table = useReactTable({
     data,
-    columns,
+    columns:
+      windowSize === "sm" || windowSize === "md" ? mobileCols : desktopCols,
     filterFns: {},
     state: {
       // columnFilters,
@@ -163,33 +94,24 @@ const StudentsPage = () => {
                 <thead>
                   {table.getHeaderGroups().map((headerGroup) => (
                     <tr key={headerGroup.id} className="bg-blue-800 text-white">
-                      {headerGroup.headers.map((header) => {
-                        return (
-                          <th key={header.id} className={Style.th}>
-                            {header.isPlaceholder ? null : (
-                              <>
-                                <div
-                                  {...{
-                                    className: header.column.getCanSort()
-                                      ? "cursor-pointer select-none"
-                                      : "",
-                                  }}
-                                >
-                                  {flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
-                                </div>
-                                {/* {header.column.getCanFilter() && (
-                                    <div className="mt-2">
-                                      <Filter column={header.column} />
-                                    </div>
-                                  )} */}
-                              </>
-                            )}
-                          </th>
-                        );
-                      })}
+                      {headerGroup.headers.map((header) => (
+                        <th key={header.id} className={Style.th}>
+                          {header.isPlaceholder ? null : (
+                            <div
+                              {...{
+                                className: header.column.getCanSort()
+                                  ? "cursor-pointer select-none"
+                                  : "",
+                              }}
+                            >
+                              {flexRender(
+                                header.column.columnDef.header,
+                                header.getContext()
+                              )}
+                            </div>
+                          )}
+                        </th>
+                      ))}
                     </tr>
                   ))}
                 </thead>
