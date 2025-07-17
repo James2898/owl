@@ -46,7 +46,7 @@ const Sidebar = () => {
       <aside
         className={`fixed top-0 left-0 w-64 bg-blue-800 text-white flex flex-col p-4 min-h-screen z-40 transition-transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
-        } sm:hidden shadow-lg duration-300`}
+        } sm:hidden duration-300`}
       >
         <div className="flex justify-end">
           <button

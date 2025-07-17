@@ -28,11 +28,12 @@ export const useSection = (section: string) => {
     refetchSections();
   }, [refetchSections, section]);
 
-  const handleStudentClicked = React.useCallback(async (student: Student) => {
+  const refetchStudentGrades = React.useCallback(async (student: Student) => {
     console.log("Student clicked:", student);
     setIsFetching(true);
     try {
-      const data = await fetchStudentGrades(student);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const data: any = await fetchStudentGrades(student);
       setStudentGrades(data);
     } catch (error) {
       console.error("Error fetching student grades:", error);
@@ -47,6 +48,6 @@ export const useSection = (section: string) => {
     studentGrades,
     isFetching,
     refetchSections,
-    handleStudentClicked,
+    refetchStudentGrades,
   };
 };

@@ -16,13 +16,28 @@ import { useSection } from "@/app/sections/hooks/useSection";
 import { Loading } from "@/app/components/Loading";
 import { Pagination } from "@/app/components/Pagination";
 import { Style } from "@/lib/Styles";
-import useWindowSize from "../hooks/useWindowSize";
-import { useTableColumns } from "./hooks/useTableColumns";
+import useWindowSize from "@/app/hooks/useWindowSize";
+import { useTableColumns } from "@/app/sections/hooks/useTableColumns";
+import { Modal } from "../components/Modal";
 
 const StudentsPage = () => {
   const [section, setSection] = React.useState("Ruby");
-  const { students, isFetching, handleStudentClicked } = useSection(section);
+  const { students, isFetching, refetchStudentGrades } = useSection(section);
+  const [selectedStudent, setSelectedStudent] = React.useState<Student | null>(
+    null
+  );
   const [data, setData] = React.useState<Student[]>(students);
+  const [isOpen, setIsOpen] = React.useState(false);
+
+  const toggleModal = (student: Student) => {
+    setIsOpen(!isOpen);
+    setSelectedStudent(student);
+  };
+
+  const closeModal = () => {
+    setIsOpen(false);
+    setSelectedStudent(null);
+  };
 
   React.useEffect(() => {
     console.log("Students state updated:", students);
@@ -120,7 +135,7 @@ const StudentsPage = () => {
                     return (
                       <tr
                         key={row.id}
-                        onClick={() => handleStudentClicked(row.original)}
+                        onClick={() => toggleModal(row.original)}
                         className={Style.tr}
                       >
                         {row.getVisibleCells().map((cell) => {
@@ -150,6 +165,11 @@ const StudentsPage = () => {
           </>
         )}
       </div>
+      <Modal
+        isOpen={isOpen}
+        handleClose={closeModal}
+        student={selectedStudent}
+      />
     </div>
   );
 };

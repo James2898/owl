@@ -5,6 +5,7 @@ import { useLogin } from "@/app/login/useLogin";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Loading } from "../components/Loading";
+import Image from "next/image";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -31,9 +32,13 @@ const LoginPage = () => {
           </div>
         ) : (
           <>
-            <p className="text-center text-gray-600 mb-8">
-              Please enter your app password to continue
-            </p>
+            <Image
+              src="/static/bb.jpg"
+              alt="Teacher Farah"
+              width={150}
+              height={150}
+              className="mx-auto animate-spin w-60 h-60 mb-6 rounded-full"
+            />
 
             <form onSubmit={handleSubmit}>
               <div>
@@ -52,13 +57,15 @@ const LoginPage = () => {
 
               {error && (
                 <div style={{ color: "red" }}>
-                  <p className="text-red-600 text-sm text-center">{error}</p>
+                  <p className="text-red-600 text-sm text-center">
+                    Mali apaka bobo naman neto
+                  </p>
                 </div>
               )}
 
               <button
                 type="submit"
-                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+                className="w-full flex justify-center my-6 py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
               >
                 Sign In
               </button>
