@@ -24,8 +24,8 @@ export const useTableColumns = () => {
             <Image
               src={imageUrl}
               alt="Student Image"
-              width={20}
-              height={20}
+              width={60}
+              height={60}
               className="w-20 h-20 rounded-full"
             />
           ) : (

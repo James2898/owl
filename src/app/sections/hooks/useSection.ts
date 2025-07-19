@@ -10,10 +10,12 @@ import { Grades } from "@/app/interface/Grades";
 export const useSection = (section: string) => {
   const [students, setStudents] = React.useState<Student[]>([]);
   const [studentGrades, setStudentGrades] = React.useState<Grades[]>([]);
-  const [isFetching, setIsFetching] = React.useState(false);
+  const [isSectionFetching, setIsSectionFetching] = React.useState(false);
+  const [isStudentGradeFetching, setIsStudentGradeFetching] =
+    React.useState(false);
 
   const refetchSections = React.useCallback(async () => {
-    setIsFetching(true);
+    setIsSectionFetching(true);
     try {
       const data = await fetchStudentsBySection(section);
       setStudents(data);
@@ -21,7 +23,7 @@ export const useSection = (section: string) => {
       console.error("Error refetching sections:", error);
       return [];
     } finally {
-      setIsFetching(false);
+      setIsSectionFetching(false);
     }
   }, [section]);
 
@@ -31,23 +33,23 @@ export const useSection = (section: string) => {
 
   const refetchStudentGrades = React.useCallback(async (student: Student) => {
     console.log("Student clicked:", student);
-    setIsFetching(true);
+    setIsStudentGradeFetching(true);
     try {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const data: any = await fetchStudentGrades(student);
+      const data: Grades[] = await fetchStudentGrades(student);
       setStudentGrades(data);
     } catch (error) {
       console.error("Error fetching student grades:", error);
       return [];
     } finally {
-      setIsFetching(false);
+      setIsStudentGradeFetching(false);
     }
   }, []);
 
   return {
     students,
     studentGrades,
-    isFetching,
+    isSectionFetching,
+    isStudentGradeFetching,
     refetchSections,
     refetchStudentGrades,
   };

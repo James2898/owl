@@ -13,10 +13,19 @@ const gradeColumns = {
     PS: "P",
     WS: "Q",
   },
-  performanceTasks: "R, S, T, U, V, W, X, Y, Z, AA, AB, AC, AD",
-  quarterlyAssessment: "AE, AF, AG",
+  performanceTasks: {
+    range: "R, S, T, U, V, W, X, Y, Z, AA",
+    total: "AB",
+    PS: "AC",
+    WS: "AD",
+  },
+  quarterlyAssessment: {
+    exam: "AE",
+    PS: "AF",
+    WS: "AG",
+  },
   initialGrade: "AH",
-  finalGrade: "AI",
+  quarterlyGrade: "AI",
 };
 
 export const fetchStudentGrades = async (student: Student) => {
@@ -27,15 +36,19 @@ export const fetchStudentGrades = async (student: Student) => {
   }
 
   try {
-    const fullName = `${student.lastName}, ${student.firstName} ${
-      student.middleName ? student.middleName[0] + "." : ""
+    const fullName = `${student.lastName}, ${student.firstName}${
+      student.middleName ? " " + student.middleName[0] + "." : ""
     }`;
     const section = student.section || "Default Section";
     const fullNameCol = "C";
 
     console.log(fullNameCol, fullName);
+
+    const queryWrittenWorks = `${gradeColumns.writtenWorks.range}, ${gradeColumns.writtenWorks.total}, ${gradeColumns.writtenWorks.PS}, ${gradeColumns.writtenWorks.WS}`;
+    const queryPerformanceTasks = `${gradeColumns.performanceTasks.range}, ${gradeColumns.performanceTasks.total}, ${gradeColumns.performanceTasks.PS}, ${gradeColumns.performanceTasks.WS}`;
+    const queryQuarterlyAssessment = `${gradeColumns.quarterlyAssessment.exam}, ${gradeColumns.quarterlyAssessment.PS}, ${gradeColumns.quarterlyAssessment.WS}`;
     const query = encodeURIComponent(
-      `SELECT ${fullNameCol}, ${gradeColumns.writtenWorks.range}, ${gradeColumns.writtenWorks.total} WHERE ${fullNameCol} = "${fullName}"`
+      `SELECT ${fullNameCol}, ${queryWrittenWorks}, ${queryPerformanceTasks}, ${queryQuarterlyAssessment} WHERE ${fullNameCol} = "${fullName}"`
     );
     const queryUrl = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEETS_ID}/gviz/tq?tqx=out:json&sheet=${section}s&tq=${query}`;
 
@@ -60,7 +73,7 @@ export const fetchStudentGrades = async (student: Student) => {
       !data.table.rows ||
       data.table.rows.length === 0
     ) {
-      console.log(`No data found for section "${student.lastName}".`);
+      alert(`No data found for section "${student.lastName}".`);
       return [];
     }
 
@@ -69,25 +82,47 @@ export const fetchStudentGrades = async (student: Student) => {
 
     const grades: Grades[] = data.table.rows.map((row) => {
       const c = row.c || [];
+      const wwRange = c
+        .slice(1, 11)
+        .map((cell, idx) => {
+          return {
+            index: idx,
+            value: cell?.v || "",
+          };
+        })
+        .filter((cell) => cell.value !== undefined && cell.value !== "");
+
+      const ptRange = c
+        .slice(14, 24)
+        .map((cell, idx) => {
+          return {
+            index: idx,
+            value: cell?.v || "",
+          };
+        })
+        .filter((cell) => cell.value !== undefined && cell.value !== "");
+
+      console.log("Debug: Processed written works range:", wwRange);
+      console.log("Debug: Processed performance tasks range:", ptRange);
 
       return {
         fullName: c[0]?.v || "",
         writtenWorks: {
-          range: {
-            r1: c[1]?.v || "",
-            r2: c[2]?.v || "",
-            r3: c[3]?.v || "",
-            r4: c[4]?.v || "",
-            r5: c[5]?.v || "",
-            r6: c[6]?.v || "",
-            r7: c[7]?.v || "",
-            r8: c[8]?.v || "",
-            r9: c[9]?.v || "",
-            r10: c[10]?.v || "",
-          },
+          range: wwRange,
           total: c[11]?.v || "",
           PS: c[12]?.v || "",
           WS: c[13]?.v || "",
+        },
+        performanceTasks: {
+          range: ptRange,
+          total: c[24]?.v || "",
+          PS: c[25]?.v || "",
+          WS: c[26]?.v || "",
+        },
+        quarterlyAssessment: {
+          exam: c[27]?.v || "",
+          PS: c[28]?.v || "",
+          WS: c[29]?.v || "",
         },
       };
     });

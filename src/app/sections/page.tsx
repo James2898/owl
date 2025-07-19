@@ -20,10 +20,15 @@ import useWindowSize from "@/app/hooks/useWindowSize";
 import { useTableColumns } from "@/app/sections/hooks/useTableColumns";
 import { Modal } from "../components/Modal";
 
-const StudentsPage = () => {
+const SectionsPage = () => {
   const [section, setSection] = React.useState("Ruby");
-  const { students, studentGrades, refetchStudentGrades, isFetching } =
-    useSection(section);
+  const {
+    students,
+    studentGrades,
+    refetchStudentGrades,
+    isStudentGradeFetching,
+    isSectionFetching,
+  } = useSection(section);
   const [selectedStudent, setSelectedStudent] = React.useState<Student | null>(
     null
   );
@@ -31,30 +36,16 @@ const StudentsPage = () => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   const toggleModal = (student: Student) => {
-    setIsOpen(!isOpen);
+    setIsOpen(true);
     setSelectedStudent(student);
     refetchStudentGrades(student);
   };
 
-  React.useEffect(() => {
-    if (
-      !studentGrades ||
-      studentGrades.length === 0 ||
-      !studentGrades.table ||
-      !studentGrades.table.rows
-    ) {
-      return;
-    }
-    console.log("Selected Student Grades:", studentGrades.table.rows[0].c);
-  }, [studentGrades]);
-
   const closeModal = () => {
     setIsOpen(false);
-    setSelectedStudent(null);
   };
 
   React.useEffect(() => {
-    console.log("Students state updated:", students);
     setData(students);
   }, [students]);
 
@@ -101,7 +92,7 @@ const StudentsPage = () => {
             <option value="Topaz">Topaz</option>
           </select>
         </h1>
-        {isFetching ? (
+        {isSectionFetching ? (
           <div className="flex items-center justify-center space-x-2">
             <Loading height={16} width={16} />
           </div>
@@ -179,14 +170,16 @@ const StudentsPage = () => {
           </>
         )}
       </div>
-      <Modal
-        isOpen={isOpen}
-        handleClose={closeModal}
-        student={selectedStudent}
-        grades={studentGrades}
-      />
+      {isOpen ? (
+        <Modal
+          handleClose={closeModal}
+          student={selectedStudent}
+          grades={studentGrades}
+          isFetching={isStudentGradeFetching}
+        />
+      ) : null}
     </div>
   );
 };
 
-export default StudentsPage;
+export default SectionsPage;
